@@ -13,7 +13,8 @@ alldata = []
 def exit_but_main():
     mainWindow.destroy()
 
-#functino to sort
+#function to sort
+#select a column to sort
 def sort_but(thisData, form, entBox):
     #check did user enter column, if not use first column as default
     if entBox.get() in thisData.columns :
@@ -34,6 +35,7 @@ def safe_cast(str):
 
 #function to select data
 def select_but(thisData, form, low, high, entBox):
+
     #check if range text box is enter correctly
     if len(low.get()) == 0:
         lowRange = float("-inf")
@@ -65,7 +67,7 @@ def select_but(thisData, form, low, high, entBox):
     form.delete(1.0, END)
     form.insert(END, thisData[selectedData])
 
-#functino to show original data
+#function to show original data
 def original_but(thisData, form):
     form.delete(1.0, END)
     form.insert(END, thisData)
@@ -77,12 +79,6 @@ def graph_but(thisData,x,y,z,num):
             plt.scatter(thisData.index.array, thisData[col], label = col)
         plt.legend()
         plt.show()
-        #for col in thisData.columns:
-        #plt.show()
-
-#thisData.index.array
-
-
     elif num.get() == "2 data":
         thisData.plot.scatter(x.get(), y.get())
         plt.show()
@@ -98,6 +94,7 @@ def graph_but(thisData,x,y,z,num):
         ax.set_zlabel(z.get())
         plt.show()
 
+#function for create model require 2 column of data
 def model_but(thisData,x,y):
 
     xAx = thisData[x.get()]
@@ -117,6 +114,21 @@ def init_secondFrame(thisData):
     secondWindow.geometry('800x400')
     secondWindow.title("Next")
 
+    colName = []
+    for col in thisData.columns:
+        colName.append(col)
+    sortCombo = ttk.Combobox(secondWindow, values = colName, width = 6)
+    sortCombo.current(0)
+    xCombo = ttk.Combobox(secondWindow, values = colName, width = 6)
+    xCombo.current(0)
+    yCombo = ttk.Combobox(secondWindow, values = colName, width = 6)
+    yCombo.current(0)
+    zCombo = ttk.Combobox(secondWindow, values = colName, width = 6)
+    zCombo.current(0)
+    typeCombo = ttk.Combobox(secondWindow, values = ["All data", "2 data", "3 data"], width = 8)
+    typeCombo.current(0)
+
+    #give function to object
     sortButton = Button(secondWindow, text= "Sort", command = lambda: sort_but(thisData, dataDisplay, sortCombo))
     selectButton = Button(secondWindow, text= "Select", command = lambda: select_but(thisData, dataDisplay, rangeLow, rangeHigh, sortCombo))
     graphButton = Button(secondWindow, text= "Graph", command = lambda: graph_but(thisData,xCombo,yCombo,zCombo,typeCombo))
@@ -132,25 +144,10 @@ def init_secondFrame(thisData):
     zLabel = Label(secondWindow, text = "Z:")
 
 
-#    sortEnt = Entry(secondWindow, width = 6)
     rangeLow = Entry(secondWindow, width = 6)
     rangeHigh = Entry(secondWindow, width = 6)
 
-    colName = []
-    for col in thisData.columns:
-        colName.append(col)
-    sortCombo = ttk.Combobox(secondWindow, values = colName, width = 6)
-    sortCombo.current(0)
 
-    xCombo = ttk.Combobox(secondWindow, values = colName, width = 6)
-    xCombo.current(0)
-    yCombo = ttk.Combobox(secondWindow, values = colName, width = 6)
-    yCombo.current(0)
-    zCombo = ttk.Combobox(secondWindow, values = colName, width = 6)
-    zCombo.current(0)
-
-    typeCombo = ttk.Combobox(secondWindow, values = ["All data", "2 data", "3 data"], width = 8)
-    typeCombo.current(0)
 
     dataDisplay = Text(secondWindow, width = 50)
     scrollBar = Scrollbar(secondWindow, orient='vertical', command = dataDisplay.yview)
@@ -194,31 +191,13 @@ def enter_but():
         messagebox.showerror(title = "Error", message = "File path is empty")
         entryMain.text = ""
     else:
-
         #try to open file safely
         try:
-            #if it is txt file
-            if inputPath.find('.txt') != -1:
-                with open(inputPath,"r") as file:
-                    f = file.readlines()
-                    empty = 0
-                    arrData = []
-
-                    #read data into array
-                    for ln in f:
-                        newLn = ln.strip("\n")
-                        text = newLn.split(',')
-                        arrData.append(text)
-                        print(text)
-                    file.close
-                    alldata = pd.DataFrame(arrData)
-                    init_secondFrame(alldata)
-
             #if it is csv file
-            elif inputPath.find('csv') != -1:
+            if inputPath.find('csv') != -1:
                 alldata = pd.read_csv(inputPath)
                 init_secondFrame(alldata)
-
+                print(alldata.columns)
             #unknown file type
             else:
                 messagebox.showerror(title = "Error", message = "Invalid file type")
