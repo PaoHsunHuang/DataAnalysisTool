@@ -7,22 +7,22 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import math
-alldata = []
+all_data = []
 
 #function to close form
 def exit_but_main():
-    mainWindow.destroy()
+    main_window.destroy()
 
 #function to sort
 #select a column to sort
-def sort_but(thisData, form, entBox):
+def sort_but(data, form, ent_Box):
     #check did user enter column, if not use first column as default
-    if entBox.get() in thisData.columns :
-        col = entBox.get()
+    if ent_Box.get() in data.columns :
+        col = ent_Box.get()
         form.delete(1.0, END)
-        form.insert(END, thisData.sort_values(by = [col]))
-    elif len(entBox.get()) == 0:
-        col = thisData.columns[0]
+        form.insert(END, data.sort_values(by = [col]))
+    elif len(ent_Box.get()) == 0:
+        col = data.columns[0]
     else:
         messagebox.showerror(title = "Error", message = "Unknown Column Name")
 
@@ -34,191 +34,191 @@ def safe_cast(str):
         return None
 
 #function to select data
-def select_but(thisData, form, low, high, entBox):
+def select_but(data, form, low, high, ent_Box):
 
     #check if range text box is enter correctly
     if len(low.get()) == 0:
-        lowRange = float("-inf")
+        low_Range = float("-inf")
     else:
-        lowRange = safe_cast(low.get())
-        if lowRange is None:
+        low_Range = safe_cast(low.get())
+        if low_Range is None:
             messagebox.showerror(title = "Error", message = "Invalid Range")
             return
 
     if len(high.get()) == 0:
-        highRange = float("inf")
+        high_Range = float("inf")
     else:
-        highRange = safe_cast(high.get())
-        if highRange is None:
+        high_Range = safe_cast(high.get())
+        if high_Range is None:
             messagebox.showerror(title = "Error", message = "Invalid Range")
             return
 
     #check did user enter column, if not use first column as default
-    if entBox.get() in thisData.columns :
-        col = entBox.get()
-    elif len(entBox.get()) == 0:
-        col = thisData.columns[0]
+    if ent_Box.get() in data.columns :
+        col = ent_Box.get()
+    elif len(ent_Box.get()) == 0:
+        col = data.columns[0]
     else:
         messagebox.showerror(title = "Error", message = "Unknown Column Name")
         return
 
-    #actual select data
-    selectedData = thisData[col].between(lowRange,highRange, inclusive = False)
+    #actual selected data only, left selected data
+    selected_Data = data[col].between(low_Range,high_Range, inclusive = False)
     form.delete(1.0, END)
-    form.insert(END, thisData[selectedData])
+    form.insert(END, data[selected_Data])
 
 #function to show original data
-def original_but(thisData, form):
+def original_but(data, form):
     form.delete(1.0, END)
-    form.insert(END, thisData)
+    form.insert(END, data)
 
 #function for graph data
-def graph_but(thisData,x,y,z,num):
+def graph_but(data,x,y,z,num):
     if num.get() == "All data":
-        for col in thisData.columns:
-            plt.scatter(thisData.index.array, thisData[col], label = col)
+        for col in data.columns:
+            plt.scatter(data.index.array, data[col], label = col)
         plt.legend()
         plt.show()
     elif num.get() == "2 data":
-        thisData.plot.scatter(x.get(), y.get())
+        data.plot.scatter(x.get(), y.get())
         plt.show()
     elif num.get() == "3 data":
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
-        xAx = thisData[x.get()]
-        yAx = thisData[y.get()]
-        zAx = thisData[z.get()]
-        ax.scatter(xAx, yAx, zAx, marker ='o')
+        x_axis = data[x.get()]
+        y_axis = data[y.get()]
+        z_axis = data[z.get()]
+        ax.scatter(x_axis, y_axis, z_axis, marker ='o')
         ax.set_xlabel(x.get())
         ax.set_ylabel(y.get())
         ax.set_zlabel(z.get())
         plt.show()
 
 #function for create model require 2 column of data
-def model_but(thisData,x,y):
+def model_but(data,x,y):
 
-    xAx = thisData[x.get()]
-    yAx = thisData[y.get()]
-    fit = np.polyfit(xAx, yAx,1)
+    x_axis = data[x.get()]
+    y_axis = data[y.get()]
+    fit = np.polyfit(x_axis, y_axis,1)
     fit_fn = np.poly1d(fit)
-    plt.plot(xAx , yAx, 'yo', xAx, fit_fn(xAx), '--k')
-    plt.xlim(xAx.min(), xAx.max())
-    plt.ylim(yAx.min(), yAx.max())
+    plt.plot(x_axis , y_axis, 'yo', x_axis, fit_fn(x_axis), '--k')
+    plt.xlim(x_axis.min(), x_axis.max())
+    plt.ylim(y_axis.min(), y_axis.max())
     plt.show()
 
 #initial windows to show data
 def init_secondFrame(thisData):
 
     #create obejct
-    secondWindow = Tk()
-    secondWindow.geometry('800x400')
-    secondWindow.title("Next")
+    second_window = Tk()
+    second_window.geometry('800x400')
+    second_window.title("Next")
 
-    colName = []
+    col_name = []
     for col in thisData.columns:
-        colName.append(col)
-    sortCombo = ttk.Combobox(secondWindow, values = colName, width = 6)
-    sortCombo.current(0)
-    xCombo = ttk.Combobox(secondWindow, values = colName, width = 6)
-    xCombo.current(0)
-    yCombo = ttk.Combobox(secondWindow, values = colName, width = 6)
-    yCombo.current(0)
-    zCombo = ttk.Combobox(secondWindow, values = colName, width = 6)
-    zCombo.current(0)
-    typeCombo = ttk.Combobox(secondWindow, values = ["All data", "2 data", "3 data"], width = 8)
-    typeCombo.current(0)
+        col_name.append(col)
+    sort_combo = ttk.Combobox(second_window, values = col_name, width = 6)
+    sort_combo.current(0)
+    x_combo = ttk.Combobox(second_window, values = col_name, width = 6)
+    x_combo.current(0)
+    y_combo = ttk.Combobox(second_window, values = col_name, width = 6)
+    y_combo.current(0)
+    z_combo = ttk.Combobox(second_window, values = col_name, width = 6)
+    z_combo.current(0)
+    type_combo = ttk.Combobox(second_window, values = ["All data", "2 data", "3 data"], width = 8)
+    type_combo.current(0)
 
     #give function to object
-    sortButton = Button(secondWindow, text= "Sort", command = lambda: sort_but(thisData, dataDisplay, sortCombo))
-    selectButton = Button(secondWindow, text= "Select", command = lambda: select_but(thisData, dataDisplay, rangeLow, rangeHigh, sortCombo))
-    graphButton = Button(secondWindow, text= "Graph", command = lambda: graph_but(thisData,xCombo,yCombo,zCombo,typeCombo))
-    oriButton = Button(secondWindow, text= "Original", command = lambda: original_but(thisData, dataDisplay))
-    modelButton = Button(secondWindow, text= "Model", command = lambda: model_but(thisData,xCombo,yCombo))
+    sort_button = Button(second_window, text= "Sort", command = lambda: sort_but(thisData, data_display, sort_combo))
+    select_button = Button(second_window, text= "Select", command = lambda: select_but(thisData, data_display, range_low, range_high, sort_combo))
+    graph_button = Button(second_window, text= "Graph", command = lambda: graph_but(thisData,x_combo,y_combo,z_combo,type_combo))
+    ori_button = Button(second_window, text= "Original", command = lambda: original_but(thisData, data_display))
+    model_button = Button(second_window, text= "Model", command = lambda: model_but(thisData,x_combo,y_combo))
 
-    sortLabel = Label(secondWindow, text = "Column", )
-    selectLabel = Label(secondWindow, text = " < value < ")
-    graphLabel = Label(secondWindow, text = "Type")
+    sort_label = Label(second_window, text = "Column", )
+    select_label = Label(second_window, text = " < value < ")
+    graph_label = Label(second_window, text = "Type")
 
-    xLabel = Label(secondWindow, text = "X:")
-    yLabel = Label(secondWindow, text = "Y:")
-    zLabel = Label(secondWindow, text = "Z:")
-
-
-    rangeLow = Entry(secondWindow, width = 6)
-    rangeHigh = Entry(secondWindow, width = 6)
+    x_label = Label(second_window, text = "X:")
+    y_label = Label(second_window, text = "Y:")
+    z_label = Label(second_window, text = "Z:")
 
 
+    range_low = Entry(second_window, width = 6)
+    range_high = Entry(second_window, width = 6)
 
-    dataDisplay = Text(secondWindow, width = 50)
-    scrollBar = Scrollbar(secondWindow, orient='vertical', command = dataDisplay.yview)
-    dataDisplay.configure(yscrollcommand = scrollBar.set)
-    dataDisplay.insert(END, thisData)
+
+
+    data_display = Text(second_window, width = 50)
+    scroll_bar = Scrollbar(second_window, orient='vertical', command = data_display.yview)
+    data_display.configure(yscrollcommand = scroll_bar.set)
+    data_display.insert(END, thisData)
 
     #locate object
-    sortButton.grid(row = 1, column = 2, padx = 25, sticky = W)
-    selectButton.grid(row = 2, column = 2, padx = 25, sticky = W)
-    graphButton.grid(row = 3, column = 2, padx = 25, sticky = W)
-    modelButton.grid(row = 4, column = 2, padx = 25, sticky = W)
-    oriButton.grid(row = 5, column = 2, padx = 25, sticky = W)
+    sort_button.grid(row = 1, column = 2, padx = 25, sticky = W)
+    select_button.grid(row = 2, column = 2, padx = 25, sticky = W)
+    graph_button.grid(row = 3, column = 2, padx = 25, sticky = W)
+    model_button.grid(row = 4, column = 2, padx = 25, sticky = W)
+    ori_button.grid(row = 5, column = 2, padx = 25, sticky = W)
 
-    xLabel.grid(row = 3, column = 5, padx = 10)
-    yLabel.grid(row = 4, column = 5, padx = 10)
-    zLabel.grid(row = 5, column = 5, padx = 10)
-    xCombo.grid(row = 3, column = 6)
-    yCombo.grid(row = 4, column = 6)
-    zCombo.grid(row = 5, column = 6)
+    x_label.grid(row = 3, column = 5, padx = 10)
+    y_label.grid(row = 4, column = 5, padx = 10)
+    z_label.grid(row = 5, column = 5, padx = 10)
+    x_combo.grid(row = 3, column = 6)
+    y_combo.grid(row = 4, column = 6)
+    z_combo.grid(row = 5, column = 6)
 
-    sortLabel.grid(row = 1, column = 3, columnspan = 3)
-    sortCombo.grid(row = 1, column = 6, columnspan = 1)
+    sort_label.grid(row = 1, column = 3, columnspan = 3)
+    sort_combo.grid(row = 1, column = 6, columnspan = 1)
 
-    graphLabel.grid(row = 3, column = 3)
-    typeCombo.grid(row = 3, column = 4)
+    graph_label.grid(row = 3, column = 3)
+    type_combo.grid(row = 3, column = 4)
 
-    rangeLow.grid(row = 2, column = 3)
-    selectLabel.grid(row = 2, column = 4, columnspan = 2)
-    rangeHigh.grid(row = 2, column = 6)
+    range_low.grid(row = 2, column = 3)
+    select_label.grid(row = 2, column = 4, columnspan = 2)
+    range_high.grid(row = 2, column = 6)
 
-    dataDisplay.grid(row = 0, column = 0, rowspan = 6)
-    scrollBar.grid(row = 0, column = 1, rowspan = 6, sticky = NS)
+    data_display.grid(row = 0, column = 0, rowspan = 6)
+    scroll_bar.grid(row = 0, column = 1, rowspan = 6, sticky = NS)
 
 
 #function to entry data file
 def enter_but():
 
     #check is the textbox empty or not
-    inputPath = entryMain.get()
-    if len(inputPath) == 0:
+    input_path = entry_main.get()
+    if len(input_path) == 0:
         messagebox.showerror(title = "Error", message = "File path is empty")
-        entryMain.text = ""
+        entry_main.text = ""
     else:
         #try to open file safely
         try:
             #if it is csv file
-            if inputPath.find('csv') != -1:
-                alldata = pd.read_csv(inputPath)
-                init_secondFrame(alldata)
-                print(alldata.columns)
+            if input_path.find('csv') != -1:
+                all_data = pd.read_csv(input_path)
+                init_secondFrame(all_data)
+                print(all_data.columns)
             #unknown file type
             else:
                 messagebox.showerror(title = "Error", message = "Invalid file type")
-                entryMain.text = ""
+                entry_main.text = ""
 
         except FileNotFoundError:
             messagebox.showerror(title = "Error", message = "Fail to open file")
 
 #locate and create object
-mainWindow = Tk()
-mainWindow.geometry('300x200')
-mainWindow.title("Main")
+main_window = Tk()
+main_window.geometry('300x200')
+main_window.title("Main")
 
-labelMain = Label(mainWindow, text= "Please Enter File Full Path")
-entryMain = Entry(mainWindow)
-buttonMain = Button(mainWindow, text= "Enter", command = enter_but)
-exitButton = Button(mainWindow, text= "Exit", command = exit_but_main)
+label_main = Label(main_window, text= "Please Enter File Full Path")
+entry_main = Entry(main_window)
+button_main = Button(main_window, text= "Enter", command = enter_but)
+exit_button = Button(main_window, text= "Exit", command = exit_but_main)
 
-labelMain.pack(pady = 10)
-entryMain.pack(pady = 10)
-buttonMain.pack(pady = 10)
-exitButton.pack(pady = 10)
+label_main.pack(pady = 10)
+entry_main.pack(pady = 10)
+button_main.pack(pady = 10)
+exit_button.pack(pady = 10)
 
-mainWindow.mainloop()
+main_window.mainloop()
