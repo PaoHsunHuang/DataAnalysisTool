@@ -14,9 +14,9 @@ def exit_but_main():
     main_window.destroy()
 
 #function to sort
-#select a column to sort
 def sort_but(data, form, ent_Box):
-    #check did user enter column, if not use first column as default
+
+    #check enter column, if not use first column as default, return error
     if ent_Box.get() in data.columns :
         col = ent_Box.get()
         form.delete(1.0, END)
@@ -26,7 +26,7 @@ def sort_but(data, form, ent_Box):
     else:
         messagebox.showerror(title = "Error", message = "Unknown Column Name")
 
-#function to cast string to number
+#function to cast string to number, return null if error
 def safe_cast(str):
     try:
         return int(str)
@@ -36,7 +36,7 @@ def safe_cast(str):
 #function to select data
 def select_but(data, form, low, high, ent_Box):
 
-    #check if range text box is enter correctly
+    #if range enter box is empty use infinite, return error
     if len(low.get()) == 0:
         low_Range = float("-inf")
     else:
@@ -53,7 +53,7 @@ def select_but(data, form, low, high, ent_Box):
             messagebox.showerror(title = "Error", message = "Invalid Range")
             return
 
-    #check did user enter column, if not use first column as default
+    #check did user enter column, if not use first column as default, return error
     if ent_Box.get() in data.columns :
         col = ent_Box.get()
     elif len(ent_Box.get()) == 0:
@@ -62,7 +62,7 @@ def select_but(data, form, low, high, ent_Box):
         messagebox.showerror(title = "Error", message = "Unknown Column Name")
         return
 
-    #actual selected data only, left selected data
+    #remain the data being selected, and output
     selected_Data = data[col].between(low_Range,high_Range, inclusive = False)
     form.delete(1.0, END)
     form.insert(END, data[selected_Data])
@@ -74,6 +74,7 @@ def original_but(data, form):
 
 #function for graph data
 def graph_but(data,x,y,z,num):
+    #3 different mode, depend on how many data input
     if num.get() == "All data":
         for col in data.columns:
             plt.scatter(data.index.array, data[col], label = col)
@@ -135,6 +136,7 @@ def init_secondFrame(thisData):
     ori_button = Button(second_window, text= "Original", command = lambda: original_but(thisData, data_display))
     model_button = Button(second_window, text= "Model", command = lambda: model_but(thisData,x_combo,y_combo))
 
+    #init label, enter box
     sort_label = Label(second_window, text = "Column", )
     select_label = Label(second_window, text = " < value < ")
     graph_label = Label(second_window, text = "Type")
@@ -148,7 +150,7 @@ def init_secondFrame(thisData):
     range_high = Entry(second_window, width = 6)
 
 
-
+    #setup data display scroll bar
     data_display = Text(second_window, width = 50)
     scroll_bar = Scrollbar(second_window, orient='vertical', command = data_display.yview)
     data_display.configure(yscrollcommand = scroll_bar.set)
@@ -185,7 +187,7 @@ def init_secondFrame(thisData):
 #function to entry data file
 def enter_but():
 
-    #check is the textbox empty or not
+    #check is the textbox empty or not, throw error message if file is empty
     input_path = entry_main.get()
     if len(input_path) == 0:
         messagebox.showerror(title = "Error", message = "File path is empty")
